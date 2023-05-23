@@ -3,16 +3,16 @@ import CAN.for_mass_inference as CAN_inference
 import torch
 import os
 from datetime import datetime
-from utils import load_config
+from utils import load_config, dele_sub_folders, make_csv
 import matplotlib.pyplot as plt
 import numpy as np
 
-from adjustText import adjust_text
+# from adjustText import adjust_text
 
 checkpointsPath = "./checkpoints" #Alterar essa variável
-SanWords = "./data/word.txt"
-CanWords = "./data/word_can.txt"
-CanImagesPkl = "data/val_image.pkl"
+SanWords = "./data/SAN/word.txt"
+CanWords = "./data/CAN/word_can.txt"
+CanImagesPkl = "data/CAN/val_image.pkl"
 SanImagesPath = "data/Base_soma_subtracao/val/val_images"
 CanLabelPath = 'data/Base_soma_subtracao/val/val_labels_subset.txt'
 SanLabelPath = 'data/Base_soma_subtracao/val/val_labels.txt'
@@ -20,15 +20,15 @@ SanLabelPath = 'data/Base_soma_subtracao/val/val_labels.txt'
 words = SanWords
 labelsPath = SanLabelPath
 
-actualDate = datetime.now().strftime("%d-%m-%Y %H-%M-%S")
-actualDevice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+actualDate = datetime.now().strftime("%d-%m-%Y %H-%M-%S")                                          #ex: 10-05-2022 10-25-43
+actualDevice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                        #ex: "GPU" ou "CPU"
 checkpointsFolder = [f.path for f in os.scandir(os.path.abspath(checkpointsPath)) if f.is_dir()]   #ex: ["C:/checkpoints/model_1","C:/checkpoints/model_2"]
 checkpointsName = [os.path.basename(x) for x in checkpointsFolder]                                 #ex: ["model_1","model_2"]
 checkpointsFile = [os.path.join(x,(os.path.basename(x)+".pth"))  for x in checkpointsFolder]       #ex: ["C:/checkpoints/model_1/model_1.pth","C:/checkpoints/model_2/model_2.pth"]
 checkpointsConfig = [os.path.join(x,"config.yaml")  for x in checkpointsFolder]                    #ex: ["C:/checkpoints/model_1/config.yaml","C:/checkpoints/model_2/config.yaml"]
-actualModelConfig = ""
 
 inferencesInfos = {}
+infosForCsv = []
 
 #FAZER A INFERÊNCIA DEPENDENDO DO ALGORITMO (SAN, CAN, ETC)
 for x in range(len(checkpointsFolder)):
@@ -56,7 +56,7 @@ for x in range(len(checkpointsFolder)):
                                             wordsPath=words,
                                             device=actualDevice,
                                             date=actualDate)
-    
+    #PARA MONTAR O GRÁFICO
     if experiment in inferencesInfos:
         inferencesInfos[experiment]["exp_rate"].append(exp_rate)
         inferencesInfos[experiment]["time_mean"].append(pred_time_mean)
@@ -65,6 +65,9 @@ for x in range(len(checkpointsFolder)):
         inferencesInfos[experiment] = {"exp_rate":[exp_rate],
                                        "time_mean": [pred_time_mean],
                                        "model_name": [checkpointsName[x]]}
+    
+    #PARA MONTAR O CSV
+    infosForCsv.append({'experiment':experiment,'model_name':checkpointsName[x],'inference_time_mean_(seconds)':pred_time_mean,'expression_rate':exp_rate})
 
 #MOSTRA O GRÁFICO
 fig, ax = plt.subplots(figsize=(20,20))
@@ -88,10 +91,16 @@ for n,experiment in enumerate(inferencesInfos):
 #             only_move={'points':'y', 'text':'y'}, force_points=0.15,
 #             arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
 
-#SALVA O GRÁFICO
-plt.savefig(str(actualDate) + '.png')
+#SALVA O GRÁFICO E A TABELA
+results_directory = os.path.join( "./inferResults/", actualDate)
+if not os.path.exists(results_directory):
+    os.makedirs(results_directory)
+plt.savefig(os.path.join(results_directory, actualDate) + '.png')
+make_csv(infosForCsv,results_directory,actualDate)
 plt.show()
 
 
-print(str(inferencesInfos))
+
+
+print(str(infosForCsv))
 

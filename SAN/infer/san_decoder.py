@@ -19,7 +19,7 @@ class SAN_decoder(nn.Module):
         self.struct_num = params['struct_num']
         
         #TESTE---------------------------------------
-        with open('data/word.txt',"r", encoding='UTF8') as f:
+        with open(params['word_path'] ,"r", encoding='UTF8') as f:
             words_dict = f.read().splitlines()
         
         self.struct_dict = [words_dict.index("above"), words_dict.index("below"), words_dict.index("sub"), words_dict.index("sup"), words_dict.index("L-sup"), words_dict.index("inside"), words_dict.index("right")]
@@ -73,7 +73,7 @@ class SAN_decoder(nn.Module):
     def forward(self, cnn_features, images_mask):
 
         #TESTE---------------------------------------
-        with open('data/word.txt',"r", encoding='UTF8') as f:
+        with open(self.params['word_path'] ,"r", encoding='UTF8') as f:
             words_dict = f.read().splitlines()
         #--------------------------------------------
         

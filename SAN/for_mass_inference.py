@@ -40,6 +40,7 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
     params['word_num'] = len(words)
     params['struct_num'] = 7
     params['words'] = words
+    params['word_path'] = wordsPath
 
     params['checkpoint'] = checkpointPath
 
