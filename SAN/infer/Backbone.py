@@ -1,6 +1,6 @@
 import torch.nn as nn
-import models
-from infer.san_decoder import SAN_decoder
+from .. import models
+from .san_decoder import SAN_decoder
 
 class Backbone(nn.Module):
     def __init__(self, params=None):

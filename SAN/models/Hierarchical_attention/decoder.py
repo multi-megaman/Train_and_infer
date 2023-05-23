@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from models.Hierarchical_attention.attention import Attention
+from .attention import Attention
 
 
 class SAN_decoder(nn.Module):

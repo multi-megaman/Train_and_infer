@@ -5,9 +5,9 @@ import torch
 import json
 from tqdm import tqdm
 
-from utils import load_config, load_checkpoint
-from infer.Backbone import Backbone
-from dataset import Words
+from .utils import load_config, load_checkpoint
+from .infer.Backbone import Backbone
+from .dataset import Words
 
 parser = argparse.ArgumentParser(description='Spatial channel attention')
 parser.add_argument('--config', default='./checkpoints/model_1/config.yaml', type=str, help='配置文件路径')
