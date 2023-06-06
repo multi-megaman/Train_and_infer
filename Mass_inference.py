@@ -26,7 +26,15 @@ actualDate        = datetime.now().strftime("%d-%m-%Y %H-%M-%S")                
 actualDevice      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                        #ex: "GPU" ou "CPU"
 checkpointsFolder = [f.path for f in os.scandir(os.path.abspath(checkpointsPath)) if f.is_dir()]   #ex: ["C:/checkpoints/model_1","C:/checkpoints/model_2"]
 checkpointsName   = [os.path.basename(x) for x in checkpointsFolder]                                 #ex: ["model_1","model_2"]
-checkpointsFile   = [os.path.join(x,(os.path.basename(x)+".pth"))  for x in checkpointsFolder]       #ex: ["C:/checkpoints/model_1/model_1.pth","C:/checkpoints/model_2/model_2.pth"]
+# checkpointsFile   = [os.path.join(x,(os.path.basename(x)+".pth"))  for x in checkpointsFolder]       #ex: ["C:/checkpoints/model_1/model_1.pth","C:/checkpoints/model_2/model_2.pth"]
+
+checkpointsFile   = []                                                                              #ex: ["C:/checkpoints/model_1/model_1.pth","C:/checkpoints/model_2/model_2.pth"]
+
+for i, folder in enumerate(checkpointsFolder):
+    for file in os.listdir(folder):
+        if file == os.path.basename(folder)+".pth" or file == os.path.basename(folder)+".ckpt":
+            checkpointsFile.append(os.path.join(folder, file))
+
 checkpointsConfig = [os.path.join(x,"config.yaml")  for x in checkpointsFolder]                    #ex: ["C:/checkpoints/model_1/config.yaml","C:/checkpoints/model_2/config.yaml"]
 
 inferencesInfos   = {}
