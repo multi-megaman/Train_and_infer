@@ -1,0 +1,163 @@
+Version 4
+
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 260 K 
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+260 K     Trainable params
+0         Non-trainable params
+260 K     Total params
+1.043     Total estimated model params size (MB)
+                                                                                                                 
+Epoch 299: 100%|██████████████████████████████████████████████████████████████████████████████| 1199/1199 [00:48<00:00, 24.93it/s, loss=0.391, v_num=4, val_loss=2.350, val_ExpRate=0.000]
+
+
+Version 5
+
+
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 252 K 
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+252 K     Trainable params
+0         Non-trainable params
+252 K     Total params
+1.011     Total estimated model params size (MB)
+Epoch 305:  37%|█████████████████████████████                                                  | 441/1199 [00:14<00:25, 29.52it/s, loss=0.451, v_num=5, val_loss=2.460, val_ExpRate=0.000]^C/home/ruan/miniconda3/envs/bttr/lib/python3.7/site-packages/pytorch_lightning/utilities/distributed.py:69: UserWarning: Detected KeyboardInterrupt, attempting graceful shutdown...     
+  warnings.warn(*args, **kwargs)
+Epoch 305:  37%|███▋      | 441/1199 [00:15<00:26, 29.04it/s, loss=0.451, v_num=5, val_loss=2.460, val_ExpRate=0.000]
+
+
+Version 6: encerrei, mas era promissor
+
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 100 K 
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+100 K     Trainable params
+0         Non-trainable params
+100 K     Total params
+0.400     Total estimated model params size (MB)
+V                                                                                                                                                        
+Epoch 121:  58%|██████████████████████████████████████████████▋                                 | 699/1199 [00:23<00:16, 30.21it/s, loss=0.73, v_num=6, val_loss=1.710, val_ExpRate=0.000]^C/home/ruan/miniconda3/envs/bttr/lib/python3.7/site-packages/pytorch_lightning/utilities/distributed.py:69: UserWarning: Detected KeyboardInterrupt, attempting graceful shutdown...     
+  warnings.warn(*args, **kwargs)
+Epoch 121:  58%|█████▊    | 699/1199 [00:23<00:16, 29.88it/s, loss=0.73, v_num=6, val_loss=1.710, val_ExpRate=0.000]
+
+
+Version 7: mantive a configuração, mas alterei o data augmentation (retornei ao de Sérgio)
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 100 K 
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+100 K     Trainable params
+0         Non-trainable params
+100 K     Total params
+0.400     Total estimated model params size (MB)
+Global seed set to 7                                                                                                                                                            
+Epoch 348:  64%|██████████████████████████████████████████████████▏                            | 730/1149 [00:24<00:13, 30.24it/s, loss=0.565, v_num=7, val_loss=1.730, val_ExpRate=0.000]^C/home/ruan/miniconda3/envs/bttr/lib/python3.7/site-packages/pytorch_lightning/utilities/distributed.py:69: UserWarning: Detected KeyboardInterrupt, attempting graceful shutdown...     
+  warnings.warn(*args, **kwargs)
+Epoch 348:  64%|██████▎   | 730/1149 [00:24<00:13, 29.97it/s, loss=0.565, v_num=7, val_loss=1.730, val_ExpRate=0.000]   
+
+
+Version 8: reduzi feedforward para 64 e decoder layers para 2
+
+
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 74.7 K
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+74.7 K    Trainable params
+0         Non-trainable params
+74.7 K    Total params
+0.299     Total estimated model params size (MB)                                                                                                                 
+Epoch 399: 100%|██████████████████████████████████████████████████████████████████████████████| 1199/1199 [00:37<00:00, 32.31it/s, loss=0.688, v_num=8, val_loss=1.640, val_ExpRate=0.000]
+
+
+Version 9: redução de d_model de 32 para 16. Caiu o val_loss
+
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 56.2 K
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+56.2 K    Trainable params
+0         Non-trainable params
+56.2 K    Total params
+0.225     Total estimated model params size (MB)
+                                                                                                                                                  
+Epoch 328:   7%|█████▎                                                                          | 77/1149 [00:02<00:34, 31.29it/s, loss=0.895, v_num=9, 
+Epoch 328:   7%|▋         | 77/1149 [00:02<00:37, 28.76it/s, loss=0.895, v_num=9, val_loss=1.400, val_ExpRate=0.000]   
+
+
+Version 10: d_model de 16 para 8, growth_rate de 8 para 4, dim_feedforward de 64 para 32. Aumentou val_loss
+
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 14.9 K
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+14.9 K    Trainable params
+0         Non-trainable params
+14.9 K    Total params
+0.060     Total estimated model params size (MB)
+
+Epoch 154:  13%|█▎        | 150/1149 [00:04<00:32, 30.98it/s, loss=1.43, v_num=10, val_loss=1.530, val_ExpRate=0.000] 
+
+
+Version 11: d_model volta para 32. Loss segue ruim
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 35.8 K
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+35.8 K    Trainable params
+0         Non-trainable params
+35.8 K    Total params
+0.143     Total estimated model params size (MB)
+
+
+Version 12: aumentou loss em relação a 9 
+
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 21.9 K
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+21.9 K    Trainable params
+0         Non-trainable params
+21.9 K    Total params
+0.088     Total estimated model params size (MB)
+Validation sanity check:   0%|                        
+Global seed set to 7                                                                                                                                                                      
+Epoch 211:  33%|█████████████████████████▊                                                     | 392/1199 [00:11<00:24, 32.90it/s, loss=1.04, v_num=12, val_loss=1.790, val_ExpRate=0.000]^C/home/ruan/miniconda3/envs/bttr/lib/python3.7/site-packages/pytorch_lightning/utilities/distributed.py:69: UserWarning: Detected KeyboardInterrupt, attempting graceful shutdown...     
+  warnings.warn(*args, **kwargs)
+Epoch 211:  33%|███▎      | 392/1199 [00:12<00:24, 32.29it/s, loss=1.04, v_num=12, val_loss=1.790, val_ExpRate=0.000]                                                                     
+(bttr) ruan@pop-os:~/code/projetos-imagem/BTTR$ 
+
+Epoch 38:  34%|███▍      | 390/1149 [00:12<00:23, 32.45it/s, loss=0.796, v_num=11, val_loss=1.620, val_ExpRate=0.000]  
+
+
+Version 13: mesma configuração da 9, 200 replicações, mas aumentou o val_loss
+
+  | Name             | Type            | Params
+-----------------------------------------------------
+0 | bttr             | BTTR            | 56.2 K
+1 | exprate_recorder | ExpRateRecorder | 0     
+-----------------------------------------------------
+56.2 K    Trainable params
+0         Non-trainable params
+56.2 K    Total params
+0.225     Total estimated model params size (MB)
+                                                                                                                                                         
+Epoch 300:   2%|█▋                                                                             | 49/2287 [00:01<01:19, 28.23it/s, loss=0.975, v_num=13, val_loss=1.960, val_ExpRate=0.000]^C/
+Epoch 300:   2%|▏         | 49/2287 [00:02<01:33, 23.90it/s, loss=0.975, v_num=13, val_loss=1.960, val_ExpRate=0.000] 
+
+
+Version 14: mesma configuração da 9, mas com 50 replicações
+
+

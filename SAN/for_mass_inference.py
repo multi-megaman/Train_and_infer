@@ -12,6 +12,12 @@ from tqdm import tqdm
 from .utils import load_config, load_checkpoint
 from .infer.Backbone import Backbone
 from .dataset import Words
+from .utils import updata_lr, Meter, cal_score
+from .dataset import get_dataset
+
+from difflib import SequenceMatcher
+
+
 
 def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt', date= "12/12/2012 12:12:12.121212", device='cpu'):
     #parser = argparse.ArgumentParser(description='Spatial channel attention')
@@ -24,12 +30,15 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
     #parser.add_argument('--label_path', default='data/Base_soma_subtracao/val/val_labels.txt', type=str, help='')
     #args = parser.parse_args()
 
+    
+
     if not configPath:
         print('请提供config yaml路径！')
         exit(-1)
 
     """加载config文件"""
     params = load_config(configPath)
+
 
     # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # device = 'cpu'
@@ -53,6 +62,11 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
     model.load_state_dict(state['model'])
 
     model.eval()
+
+    # train_loader, eval_loader = get_dataset(params)
+
+    # loss_meter_eval, word_right_eval, struct_right_eval, exp_right_eval = eval(params= params,model= model)
+
 
     word_right, node_right, exp_right, length, cal_num = 0, 0, 0, 0, 0
 
@@ -124,13 +138,11 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
     with torch.no_grad():
         bad_case = {}
         pred_times={}
+        word_right={}
         inferences_awnser={}
         pred_time_mean = 0
+        word_right_mean = 0
 
-        #CRIAR PASTA
-        inferences_directory = os.path.join(checkpointFolder,"inferences -" + str(date))
-        if not os.path.exists(inferences_directory):
-            os.makedirs(inferences_directory)
             
         for item in tqdm(labels):
             name, *label = item.split()
@@ -167,36 +179,53 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
             #
             # cv2.waitKey()
 
+            #Word_right-------------------------
+
+            latex_prediction_list = latex_string.split() 
+            label_list = label.strip().split()
+
+            print("latex_prediction_list: " + str(latex_prediction_list))
+            print("label_list: " + str(label_list))
+
+            word_right_ratio = SequenceMatcher(None,latex_string,label.strip(),autojunk=False).ratio()
+            print("word_right_ratio: " + str(word_right_ratio))
+
+            word_right[name]=word_right_ratio
+            #-----------------------------------
 
             if latex_string == label.strip():
+                # print("^ ACERTOU")
                 exp_right += 1
                 inferences_awnser[name]=(latex_string + " ---> V")
             else:
+                print("^ ERROUUUUUUUUUUUUUU")
                 inferences_awnser[name]=(latex_string + " ---> X")
                 bad_case[name] = {
                     'label': label,
                     'predi': latex_string,
                     'list': prediction
                 }
-            
-            
-        #print(str(inferences_awnser))
         pred_time_mean = np.array(list(pred_times.values())).mean()
+        word_right_mean = np.array(list(word_right.values())).mean()
         exp_rate = exp_right / len(labels)
-        with open(os.path.join(inferences_directory,"prediction times - mean "+str(pred_time_mean).replace(".",",")+"s.txt"),"w+", encoding='UTF8') as f:
-            f.write(str(pred_times))
-        f.close()
-        with open(os.path.join(inferences_directory,"inferences - exp_rate- "+str(exp_rate).replace(".",",")+".txt"),"w+", encoding='UTF8') as g:
-            g.write(str(inferences_awnser))
-        g.close()
-        #print(exp_right / len(labels))
-        # print("exp_right: " + str(exp_right))
-        # print("len(labels)" + str(len(labels)))
+            
+
+        #CRIAR PASTA
+        # inferences_directory = os.path.join(checkpointFolder,"inferences -" + str(date))
+        # if not os.path.exists(inferences_directory):
+        #     os.makedirs(inferences_directory)
+        # #print(str(inferences_awnser))
+        # with open(os.path.join(inferences_directory,"prediction times - mean "+str(pred_time_mean).replace(".",",")+"s.txt"),"w+", encoding='UTF8') as f:
+        #     f.write(str(pred_times))
+        # f.close()
+        # with open(os.path.join(inferences_directory,"inferences - exp_rate- "+str(exp_rate).replace(".",",")+".txt"),"w+", encoding='UTF8') as g:
+        #     g.write(str(inferences_awnser))
+        # g.close()
 
     with open('bad_case.json', 'w') as f:
         json.dump(bad_case, f, ensure_ascii=False)
 
-    return exp_rate, pred_time_mean, params["experiment"]
+    return exp_rate, pred_time_mean, word_right_mean, params["experiment"]
 
 
 

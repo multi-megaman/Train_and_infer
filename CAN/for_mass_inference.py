@@ -9,6 +9,7 @@ import pickle as pkl
 from tqdm import tqdm
 import time
 import difflib
+from difflib import SequenceMatcher
 
 from .utils import load_config, load_checkpoint, compute_edit_distance
 from .models.infer_model import Inference
@@ -70,12 +71,11 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
     with torch.no_grad():
         pred_times={}
         inferences_awnser={}
+        word_right={}
         pred_time_mean = 0
+        word_right_mean = 0
 
-        #CRIAR PASTA
-        inferences_directory = os.path.join(checkpointFolder,"inferences -" + str(date))
-        if not os.path.exists(inferences_directory):
-            os.makedirs(inferences_directory)
+
         for line in tqdm(lines):
             name, *labels = line.split()
             name = name.split('.')[0] if name.endswith('jpg') else name
@@ -121,8 +121,14 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
             if prediction == labels:
                 line_right += 1
                 inferences_awnser[name]=(prediction + " ---> V")
+                print("ACERTOU!!!")
+                print("Prediction: " + str(prediction))
+                print("labelRight: " + str(labels))
             else:
                 inferences_awnser[name]=(prediction + " ---> X")
+                print("ERROUUUUUUUUUUUUUUUUUUUUUUU")
+                print("Prediction: " + str(prediction))
+                print("labelRight: " + str(labels))
                 bad_case[name] = {
                     'label': labels,
                     'predi': prediction
@@ -132,6 +138,11 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
             # print("LABEL:" + labels)
             # print("INREFENCE_AWNSER:" + str(inferences_awnser[name]))
             # print("line_right:" + str(line_right))
+
+            #Word_Right:
+            word_right_ratio = SequenceMatcher(None,prediction,labels,autojunk=False).ratio()
+            word_right[name]=word_right_ratio   
+            print("word_right_ratio: " + str(word_right_ratio))
 
             distance = compute_edit_distance(prediction, labels)
             if distance <= 1:
@@ -143,13 +154,19 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
                 e3 += 1
 
     pred_time_mean = np.array(list(pred_times.values())).mean()
+    word_right_mean = np.array(list(word_right.values())).mean()
     exp_rate = line_right / len(lines)
-    with open(os.path.join(inferences_directory,"prediction times - mean "+str(pred_time_mean).replace(".",",")+"s.txt"),"w+", encoding='UTF8') as f:
-        f.write(str(pred_times))
-    f.close()
-    with open(os.path.join(inferences_directory,"inferences - exp_rate- "+str(exp_rate).replace(".",",")+".txt"),"w+", encoding='UTF8') as g:
-        g.write(str(inferences_awnser))
-    g.close()
+
+    #CRIAR PASTA
+    # inferences_directory = os.path.join(checkpointFolder,"inferences -" + str(date))
+    # if not os.path.exists(inferences_directory):
+    #     os.makedirs(inferences_directory)
+    # with open(os.path.join(inferences_directory,"prediction times - mean "+str(pred_time_mean).replace(".",",")+"s.txt"),"w+", encoding='UTF8') as f:
+    #     f.write(str(pred_times))
+    # f.close()
+    # with open(os.path.join(inferences_directory,"inferences - exp_rate- "+str(exp_rate).replace(".",",")+".txt"),"w+", encoding='UTF8') as g:
+    #     g.write(str(inferences_awnser))
+    # g.close()
 
     print(f'model time: {model_time}')
     print(f'ExpRate: {line_right / len(lines)}')
@@ -162,4 +179,4 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
     with open(f'{params["decoder"]["net"]}_bad_case.json','w') as f:
         json.dump(bad_case,f,ensure_ascii=False)
 
-    return exp_rate, pred_time_mean, params["experiment"]
+    return exp_rate, pred_time_mean,word_right_mean, params["experiment"]

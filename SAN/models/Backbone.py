@@ -1,5 +1,5 @@
 import torch.nn as nn
-import models
+from .. import models
 import torch
 
 class Backbone(nn.Module):
