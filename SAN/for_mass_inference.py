@@ -19,7 +19,7 @@ from difflib import SequenceMatcher
 
 
 
-def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt', date= "12/12/2012 12:12:12.121212", device='cpu'):
+def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt', date= "12/12/2012 12:12:12.121212"):
     #parser = argparse.ArgumentParser(description='Spatial channel attention')
     #parser.add_argument('--config', default='./checkpoints/model_1/config.yaml', type=str, help='配置文件路径')
     #parser.add_argument('--image_path', default='data/DataBase/test/test_images', type=str, help='测试image路径')
@@ -142,6 +142,8 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
         inferences_awnser={}
         pred_time_mean = 0
         word_right_mean = 0
+        pred_time_std = 0
+        word_right_std = 0
 
             
         for item in tqdm(labels):
@@ -179,6 +181,19 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
             #
             # cv2.waitKey()
 
+
+            if latex_string == label.strip():
+                print("ACERTOU!")
+                exp_right += 1
+                inferences_awnser[name]=(latex_string + " ---> V")
+            else:
+                print("ERROU!")
+                inferences_awnser[name]=(latex_string + " ---> X")
+                bad_case[name] = {
+                    'label': label,
+                    'predi': latex_string,
+                    'list': prediction
+                }
             #Word_right-------------------------
 
             latex_prediction_list = latex_string.split() 
@@ -193,21 +208,11 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
             word_right[name]=word_right_ratio
             #-----------------------------------
 
-            if latex_string == label.strip():
-                # print("^ ACERTOU")
-                exp_right += 1
-                inferences_awnser[name]=(latex_string + " ---> V")
-            else:
-                print("^ ERROUUUUUUUUUUUUUU")
-                inferences_awnser[name]=(latex_string + " ---> X")
-                bad_case[name] = {
-                    'label': label,
-                    'predi': latex_string,
-                    'list': prediction
-                }
         pred_time_mean = np.array(list(pred_times.values())).mean()
         word_right_mean = np.array(list(word_right.values())).mean()
         exp_rate = exp_right / len(labels)
+        pred_time_std = np.array(list(pred_times.values())).std()
+        word_right_std = np.array(list(word_right.values())).std()
             
 
         #CRIAR PASTA
@@ -225,7 +230,7 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
     with open('bad_case.json', 'w') as f:
         json.dump(bad_case, f, ensure_ascii=False)
 
-    return exp_rate, pred_time_mean, word_right_mean, params["experiment"]
+    return exp_rate, pred_time_mean, word_right_mean, pred_time_std, word_right_std, device, params["experiment"]
 
 
 

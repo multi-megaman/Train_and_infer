@@ -1,0 +1,12 @@
+1	4	0	<sos>	None	None	None	None	None	None	None
+2	4	1	4	None	None	None	None	None	None	None
+3	4	2	4	None	None	None	None	None	None	None
+4	+	3	4	None	None	None	None	None	None	None
+5	4	4	+	None	None	None	None	None	None	None
+6	4	5	4	None	None	None	None	None	None	None
+7	4	6	4	None	None	None	None	None	None	None
+8	=	7	4	None	None	None	None	None	None	None
+9	8	8	=	None	None	None	None	None	None	None
+10	8	9	8	None	None	None	None	None	None	None
+11	8	10	8	None	None	None	None	None	None	None
+12	<eos>	11	8	None	None	None	None	None	None	None

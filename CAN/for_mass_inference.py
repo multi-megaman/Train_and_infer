@@ -16,7 +16,7 @@ from .models.infer_model import Inference
 from .dataset import Words
 from .counting_utils import gen_counting_label
 
-def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt', date= "12/12/2012 12:12:12.121212", device='cpu'):
+def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt', date= "12/12/2012 12:12:12.121212"):
     # parser = argparse.ArgumentParser(description='model testing')
     # parser.add_argument('--dataset', default='CROHME', type=str, help='数据集名称')
     # parser.add_argument('--image_path', default='datasets/CROHME/14_test_images.pkl', type=str, help='测试image路径')
@@ -74,7 +74,8 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
         word_right={}
         pred_time_mean = 0
         word_right_mean = 0
-
+        pred_time_std = 0
+        word_right_std = 0
 
         for line in tqdm(lines):
             name, *labels = line.split()
@@ -126,7 +127,7 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
                 print("labelRight: " + str(labels))
             else:
                 inferences_awnser[name]=(prediction + " ---> X")
-                print("ERROUUUUUUUUUUUUUUUUUUUUUUU")
+                print("ERROU!")
                 print("Prediction: " + str(prediction))
                 print("labelRight: " + str(labels))
                 bad_case[name] = {
@@ -156,6 +157,8 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
     pred_time_mean = np.array(list(pred_times.values())).mean()
     word_right_mean = np.array(list(word_right.values())).mean()
     exp_rate = line_right / len(lines)
+    pred_time_std = np.array(list(pred_times.values())).std()
+    word_right_std = np.array(list(word_right.values())).std()
 
     #CRIAR PASTA
     # inferences_directory = os.path.join(checkpointFolder,"inferences -" + str(date))
@@ -179,4 +182,4 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,imagePat
     with open(f'{params["decoder"]["net"]}_bad_case.json','w') as f:
         json.dump(bad_case,f,ensure_ascii=False)
 
-    return exp_rate, pred_time_mean,word_right_mean, params["experiment"]
+    return exp_rate, pred_time_mean,word_right_mean,pred_time_std, word_right_std, device, params["experiment"]

@@ -9,21 +9,27 @@ from utils import load_config, dele_sub_folders, make_csv
 import matplotlib.pyplot as plt
 import numpy as np
 
+from gen_plots import Make_plots
 # from adjustText import adjust_text
 
-checkpointsPath   = "./checkpoints" #Alterar essa variável
-SanWords          = "./data/SAN/word.txt"
-CanWords          = "./data/CAN/word_can.txt"
-CanImagesPkl      = "data/CAN/val_image.pkl"
+#Variáveis para alterar----------------------------------------
+checkpointsPath   = "./checkpoints" #Pasta que contém todas as pastas com os checkpoints e as configs (se houverem)
+SanWords          = "./data/SAN/word.txt" #word.txt do SAN
+CanWords          = "./data/CAN/word_can.txt" #word.txt do CAN
+CanImagesPkl      = "data/CAN/val_image.pkl" #pkl de imagens do CAN (ele faz inferência com um pkl)
 SanImagesPath     = "data/Base_soma_subtracao/val/val_images"
-CanLabelPath      = 'data/Base_soma_subtracao/val/val_labels_subset.txt'
+CanLabelPath      = 'data/Base_soma_subtracao/val/val_labels.txt'
 SanLabelPath      = 'data/Base_soma_subtracao/val/val_labels.txt'
 
 words             = SanWords
 labelsPath        = SanLabelPath
 
 actualDate        = datetime.now().strftime("%d-%m-%Y %H-%M-%S")                                          #ex: 10-05-2022 10-25-43
-actualDevice      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                        #ex: "GPU" ou "CPU"
+actualDevice      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                        #ex: "CUDA ou "CPU"
+devices = ['cpu']
+if torch.cuda.is_available():
+    devices.append('cuda')
+
 checkpointsFolder = [f.path for f in os.scandir(os.path.abspath(checkpointsPath)) if f.is_dir()]   #ex: ["C:/checkpoints/model_1","C:/checkpoints/model_2"]
 checkpointsName   = [os.path.basename(x) for x in checkpointsFolder]                                 #ex: ["model_1","model_2"]
 # checkpointsFile   = [os.path.join(x,(os.path.basename(x)+".pth"))  for x in checkpointsFolder]       #ex: ["C:/checkpoints/model_1/model_1.pth","C:/checkpoints/model_2/model_2.pth"]
@@ -57,62 +63,58 @@ for x in range(len(checkpointsFolder)):
         labelsPath = CanLabelPath
         ImagesPath = CanImagesPkl
 
+    for device in devices: #para fazer inferências com GPU e sem GPU
 
-    exp_rate, pred_time_mean, word_right, experiment =  inferenceScript.Make_inference(checkpointFolder=checkpointsFolder[x],
-                                            imagePath=ImagesPath,
-                                            labelPath=labelsPath,
-                                            configPath=checkpointsConfig[x],
-                                            checkpointPath=checkpointsFile[x], 
-                                            wordsPath=words,
-                                            device=actualDevice,
-                                            date=actualDate)
-    #PARA MONTAR O GRÁFICO
-    if experiment in inferencesInfos:
-        inferencesInfos[experiment]["exp_rate"].append(exp_rate)
-        inferencesInfos[experiment]["time_mean"].append(pred_time_mean)
-        inferencesInfos[experiment]["word_rate_mean"].append(word_right)
-        inferencesInfos[experiment]["model_name"].append(checkpointsName[x])
-    else:
-        inferencesInfos[experiment] = {"exp_rate":[exp_rate],
-                                       "time_mean": [pred_time_mean],
-                                       "word_rate_mean": [word_right],
-                                       "model_name": [checkpointsName[x]]}
-    
-    #PARA MONTAR O CSV
-    infosForCsv.append({'experiment':experiment,'model_name':checkpointsName[x],'inference_time_mean_(seconds)':pred_time_mean,'expression_rate':exp_rate,'word_right_mean':word_right})
+        exp_rate, pred_time_mean, word_right,pred_time_std, word_right_std, device, experiment =  inferenceScript.Make_inference(checkpointFolder=checkpointsFolder[x],
+                                                imagePath=ImagesPath,
+                                                labelPath=labelsPath,
+                                                configPath=checkpointsConfig[x],
+                                                checkpointPath=checkpointsFile[x], 
+                                                wordsPath=words,
+                                                device=device,
+                                                date=actualDate)
+        #PARA MONTAR O GRÁFICO
+        # if experiment in inferencesInfos:
+        #     inferencesInfos[experiment]["exp_rate"].append(exp_rate)
+        #     inferencesInfos[experiment]["word_rate_std"].append(word_right_std)
+        #     inferencesInfos[experiment]["time_mean_std"].append(pred_time_std)
+        #     inferencesInfos[experiment]["word_rate_mean"].append(word_right)
+        #     inferencesInfos[experiment]["time_mean"].append(pred_time_mean)
+        #     inferencesInfos[experiment]["device"].append(device)
+        #     inferencesInfos[experiment]["model_name"].append(checkpointsName[x])
+        # else:
+        #     inferencesInfos[experiment] = {"exp_rate":[exp_rate],
+        #                                 "word_rate_mean": [word_right],
+        #                                 "word_rate_std": [word_right_std],
+        #                                 "time_mean": [pred_time_mean],
+        #                                 "time_std": [pred_time_std],
+        #                                 "device": [device],
+        #                                 "model_name": [checkpointsName[x]]}
+        
+        #PARA MONTAR O CSV
+        infosForCsv.append({'experiment':experiment,'model_name':checkpointsName[x],'inference_time_mean_(seconds)':pred_time_mean,'inference_time_standard_deviation':pred_time_std,'expression_rate':exp_rate,'word_right_mean':word_right,'word_right_standard_deviation':word_right_std,'device': device})
 
 #MOSTRA O GRÁFICO
-fig, ax = plt.subplots(figsize=(20,20))
-plt.xlabel("exp_rate", size=30)
-plt.ylabel("inference_time_mean", size=30)
-plt.xticks(np.arange(0, 1, 0.05))
-plt.title("Inferences", size=25)
+# fig, ax = plt.subplots(figsize=(20,20))
+# plt.xlabel("exp_rate", size=30)
+# plt.ylabel("inference_time_mean", size=30)
+# plt.xticks(np.arange(0, 1, 0.05))
+# plt.title("Inferences", size=25)
 
 #ANOTA O NOME DOS MODELOS NOS PONTOS DO GRÁFICO
-for n,experiment in enumerate(inferencesInfos):
-    plt.plot(inferencesInfos[experiment]["exp_rate"],inferencesInfos[experiment]["time_mean"],'o')
-    for i, modelName in enumerate(inferencesInfos[experiment]["model_name"]):
-        ax.annotate(str(experiment) + " " + str(modelName), (inferencesInfos[experiment]["exp_rate"][i], inferencesInfos[experiment]["time_mean"][i]),fontsize=13)
-
-# p1 = plt.plot(inferencesInfos[experiment]["exp_rate"],inferencesInfos[experiment]["time_mean"],color="black", alpha=0.5)
-# anotacoes = []
 # for n,experiment in enumerate(inferencesInfos):
+#     plt.plot(inferencesInfos[experiment]["exp_rate"],inferencesInfos[experiment]["time_mean"],'o')
 #     for i, modelName in enumerate(inferencesInfos[experiment]["model_name"]):
-#         anotacoes.append(plt.text(inferencesInfos[experiment]["exp_rate"],inferencesInfos[experiment]["time_mean"],(str(experiment) + " " + str(modelName), (inferencesInfos[experiment]["exp_rate"][i], inferencesInfos[experiment]["time_mean"][i]))))
-# adjust_text(anotacoes, x=inferencesInfos[experiment]["exp_rate"], y=inferencesInfos[experiment]["time_mean"], autoalign='y',
-#             only_move={'points':'y', 'text':'y'}, force_points=0.15,
-#             arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
+#         ax.annotate(str(experiment) + " " + str(modelName), (inferencesInfos[experiment]["exp_rate"][i], inferencesInfos[experiment]["time_mean"][i]),fontsize=13)
+
 
 #SALVA O GRÁFICO E A TABELA
 results_directory = os.path.join( "./inferResults/", actualDate)
 if not os.path.exists(results_directory):
     os.makedirs(results_directory)
-plt.savefig(os.path.join(results_directory, actualDate) + '.png')
-make_csv(infosForCsv,results_directory,actualDate)
-plt.show()
+# plt.savefig(os.path.join(results_directory, actualDate) + '.png')
+csvPath = make_csv(infosForCsv,results_directory,actualDate)
 
+Make_plots(csvPath,results_directory)
 
-
-
-print(str(infosForCsv))
 

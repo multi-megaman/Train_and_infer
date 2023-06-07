@@ -1,0 +1,15 @@
+1	\overset	0	<sos>	None	None	None	None	None	None	None
+2	struct	1	\overset	None	below	None	sup	None	None	right
+3	1	2	sup	None	None	None	None	None	None	None
+4	<eos>	3	1	None	None	None	None	None	None	None
+5	9	2	below	None	None	None	None	None	None	None
+6	<eos>	5	9	None	None	None	None	None	None	None
+7	9	2	right	None	None	None	None	None	None	None
+8	+	7	9	None	None	None	None	None	None	None
+9	9	8	+	None	None	None	None	None	None	None
+10	9	9	9	None	None	None	None	None	None	None
+11	=	10	9	None	None	None	None	None	None	None
+12	1	11	=	None	None	None	None	None	None	None
+13	9	12	1	None	None	None	None	None	None	None
+14	8	13	9	None	None	None	None	None	None	None
+15	<eos>	14	8	None	None	None	None	None	None	None

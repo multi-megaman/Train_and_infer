@@ -18,9 +18,10 @@ def dele_sub_folders(folderPath):
 def make_csv(infos,directory,fileName):
     print(infos)
     keys = infos[0].keys()
-    with open(os.path.join(directory,fileName)+'.csv', 'w', newline='') as f:
+    csvPath = os.path.join(directory,fileName)+'.csv'
+    with open(csvPath, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=keys)
         writer.writeheader()
         writer.writerows(infos)
     f.close()
-    return infos
+    return csvPath
