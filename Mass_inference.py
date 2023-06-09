@@ -63,7 +63,7 @@ for x in range(len(checkpointsFolder)):
                                                     checkpointPath=checkpointsFile[x], 
                                                     wordsPath=words,
                                                     resize=SanResizeImg,
-                                                    device=device,
+                                                    deviceName=device,
                                                     date=actualDate)
             infosForCsv.append({'experiment':experiment,'model_name':checkpointsName[x],'inference_time_mean_(seconds)':pred_time_mean,'inference_time_standard_deviation':pred_time_std,'expression_rate':exp_rate,'word_right_mean':word_right,'word_right_standard_deviation':word_right_std,'device': device})
 

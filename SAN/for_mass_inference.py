@@ -19,7 +19,7 @@ from difflib import SequenceMatcher
 
 
 
-def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt',resize=None, date= "12/12/2012 12:12:12.121212"):
+def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,deviceName,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt',resize=None, date= "12/12/2012 12:12:12.121212"):
     #parser = argparse.ArgumentParser(description='Spatial channel attention')
     #parser.add_argument('--config', default='./checkpoints/model_1/config.yaml', type=str, help='配置文件路径')
     #parser.add_argument('--image_path', default='data/DataBase/test/test_images', type=str, help='测试image路径')
@@ -40,7 +40,7 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,i
     params = load_config(configPath)
 
 
-    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device(deviceName)
     # device = 'cpu'
     params['device'] = device
 
@@ -74,6 +74,7 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,i
         labels = f.readlines()
 
     def convert(nodeid, gtd_list):
+        print(gtd_list)
         isparent = False
         child_list = []
         for i in range(len(gtd_list)):
@@ -232,7 +233,7 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,i
     with open('bad_case.json', 'w') as f:
         json.dump(bad_case, f, ensure_ascii=False)
 
-    return exp_rate, pred_time_mean, word_right_mean, pred_time_std, word_right_std, device, params["experiment"]
+    return exp_rate, pred_time_mean, word_right_mean, pred_time_std, word_right_std, deviceName, params["experiment"]
 
 
 
