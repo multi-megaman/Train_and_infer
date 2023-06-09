@@ -1,3 +1,5 @@
-/data/Base_soma_subtracao
-/checkpoints/**
+/data
+/checkpoints
+/checkpoints_old
 /inferResults
+/data_HME100K_sum_sub_7k_150x150

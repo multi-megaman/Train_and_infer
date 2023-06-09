@@ -19,7 +19,7 @@ from difflib import SequenceMatcher
 
 
 
-def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt', date= "12/12/2012 12:12:12.121212"):
+def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt',resize=None, date= "12/12/2012 12:12:12.121212"):
     #parser = argparse.ArgumentParser(description='Spatial channel attention')
     #parser.add_argument('--config', default='./checkpoints/model_1/config.yaml', type=str, help='配置文件路径')
     #parser.add_argument('--image_path', default='data/DataBase/test/test_images', type=str, help='测试image路径')
@@ -148,14 +148,17 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,i
             
         for item in tqdm(labels):
             name, *label = item.split()
+            print("-----------------")
+            print("Imagem: " + str(name))
             label = ' '.join(label)
             #if name.endswith('.jpg'):
             #    name = name.split('.')[0]
             img = cv2.imread(os.path.join(imagePath, name))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-            dim = (150, 150)
-            img = cv2.resize(img, (dim), interpolation=cv2.INTER_AREA)
+            if resize:
+                dim = resize
+                img = cv2.resize(img, (dim), interpolation=cv2.INTER_AREA)
 
             image = torch.Tensor(img) / 255
             image = image.unsqueeze(0).unsqueeze(0)
@@ -180,7 +183,6 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,i
             # cv2.imshow('image', img)
             #
             # cv2.waitKey()
-
 
             if latex_string == label.strip():
                 print("ACERTOU!")
