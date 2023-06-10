@@ -74,7 +74,7 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,deviceNa
         labels = f.readlines()
 
     def convert(nodeid, gtd_list):
-        print(gtd_list)
+        # print(gtd_list)
         isparent = False
         child_list = []
         for i in range(len(gtd_list)):
@@ -82,7 +82,10 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,deviceNa
                 isparent = True
                 child_list.append([gtd_list[i][0],gtd_list[i][1],gtd_list[i][3]])
         if not isparent:
-            return [gtd_list[nodeid][0]]
+            try:
+                return [gtd_list[nodeid][0]]
+            except IndexError:
+                return ['\\vazio']
         else:
             if gtd_list[nodeid][0] == '\\frac':
                 return_string = [gtd_list[nodeid][0]]
