@@ -93,6 +93,6 @@ if not os.path.exists(results_directory):
 csvPath = make_csv(infosForCsv,results_directory,actualDate)
 
 #GERA OS GRÁFICOS
-Make_plots(csvPath,results_directory)
+Make_plots(csvPath,results_directory,show=True)
 
 

@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 
-def Cpu_x_Cuda_scatter(csv, savePath= None):
+def Cpu_x_Cuda_scatter(csv, savePath= None, show=True):
 
     experiment_rows = {} #Separa o CSV por experimentos, ex: {SAN:[lista_de_runs],CAN:[lista_de_runs]}
     for x in csv.iterrows():
@@ -47,9 +47,10 @@ def Cpu_x_Cuda_scatter(csv, savePath= None):
             if os.path.exists(file):
                 os.remove(file)
             plt.savefig(file)
-        plt.show() 
+        if show:
+            plt.show() 
 
-def Cpu_x_Cuda_bar(csv, savePath= None):
+def Cpu_x_Cuda_bar(csv, savePath= None,show=True):
 
     experiment_rows = {} #Separa o CSV por experimentos, ex: {SAN:[lista_de_runs],CAN:[lista_de_runs]}
     for x in csv.iterrows():
@@ -115,10 +116,11 @@ def Cpu_x_Cuda_bar(csv, savePath= None):
                 os.remove(file)
             plt.savefig(file)
 
-        plt.show() 
+        if show:
+            plt.show() 
         #------------------------------------------------
 
-def top_x_models(csv,bestQnt, savePath = None): #plot que pega os x melhores modelos e plota todos juntos comparando o expRate deles com o inference_time_mean (CPU e\ou GPU)
+def top_x_models(csv,bestQnt, savePath = None,show=True): #plot que pega os x melhores modelos e plota todos juntos comparando o expRate deles com o inference_time_mean (CPU e\ou GPU)
     device_rows = {} #Separa o CSV por CPU e CUDA, ex: {cpu:[lista_de_runs],cuda:[lista_de_runs]}
     for x in csv.iterrows():
         if x[1]['device'] in device_rows:
@@ -167,10 +169,11 @@ def top_x_models(csv,bestQnt, savePath = None): #plot que pega os x melhores mod
         
         
         if (savePath):
-            file = os.path.join(savePath, (str(device)+'_infTime_vs_expRate.png'))
+            file = os.path.join(savePath, (str(device)+'_inference_Time_vs_expRate.png'))
             if os.path.exists(file):
                 os.remove(file)
             plt.savefig(file)
-        plt.show() 
+        if show:
+            plt.show() 
 
 
