@@ -75,8 +75,9 @@ def Cpu_x_Cuda_bar(csv, savePath= None):
             if experiment_rows[experiment][run]['model_name'] not in labels:
                 labels.append(experiment_rows[experiment][run]['model_name'])
 
-        #caso não tenham runs com Cuda, não será possivel fazer o plot
-        if not y:
+        #caso não tenham runs com Cuda ou CPU, não será possivel fazer o plot
+        if not y or not x:
+            print("Não foi possivel fazer o plot CPU x CUDA do " + str(experiment) + " pois é necessário ter feito as inferências com CPU e GPU e está faltando um dos dois.")
             return -1
 
         #----PLOT--------------------------------------------
@@ -109,10 +110,67 @@ def Cpu_x_Cuda_bar(csv, savePath= None):
         # ax.set_ylim(0, 250)
 
         if (savePath):
-            file = os.path.join(savePath, (str(experiment)+'_CPUvsGPU.png'))
+            file = os.path.join(savePath, (str(experiment)+'_CPUvsGPU_time.png'))
             if os.path.exists(file):
                 os.remove(file)
             plt.savefig(file)
 
         plt.show() 
         #------------------------------------------------
+
+def top_x_models(csv,bestQnt, savePath = None): #plot que pega os x melhores modelos e plota todos juntos comparando o expRate deles com o inference_time_mean (CPU e\ou GPU)
+    device_rows = {} #Separa o CSV por CPU e CUDA, ex: {cpu:[lista_de_runs],cuda:[lista_de_runs]}
+    for x in csv.iterrows():
+        if x[1]['device'] in device_rows:
+            device_rows[x[1]['device']].append(x[1])
+        else:
+            device_rows[x[1]['device']] = [x[1]]
+    
+    # print(device_rows)
+
+    for device in device_rows: #devices, ex: cpu, cuda
+        # print(device)
+        # print(device)
+        x = [] #Tempo de inferência em CPU
+        y = [] #Tempo de inferência em CUDA
+        labels = []
+
+        experiment_rows = {} #Separa o CSV por experimentos dentro do device, ex: {SAN:[lista_de_runs],CAN:[lista_de_runs]}
+        for device_run in device_rows[device]:
+
+            if device_run['experiment'] in experiment_rows:
+                experiment_rows[device_run['experiment']].append(device_run)
+            else:
+                experiment_rows[device_run['experiment']] = [device_run]
+
+
+        for experiment in experiment_rows: #Serão capturados os x melhores modelos dentro dos experimentos, ex: CAN, SAN
+
+                runs_dataframe = pd.DataFrame.from_dict(experiment_rows[experiment])
+                runs_dataframe = runs_dataframe.sort_values(by=['expression_rate'],ascending=False).head(bestQnt) #pegando apenas as x primeiras colunas de cada experimento em ordem decrescente (ou seja, as x melhores inferências baseadas no exp_rate')
+
+                # print(runs_dataframe)
+                for run in runs_dataframe.iterrows():
+                    x.append(run[1]['expression_rate'])
+                    y.append(run[1]['inference_time_mean_(seconds)'])
+                    labels.append(run[1]['model_name'])
+
+        
+        fig, ax = plt.subplots(figsize=(15, 10))
+        ax.scatter(x, y)
+        ax.set_xlabel('Expression_rate')
+        ax.set_ylabel('inference_time_mean(seconds)')
+        ax.set_title(str(device) + " inference Time vs Expression Rate")
+
+        for i, txt in enumerate(labels):
+            ax.annotate(txt, xy=(x[i], y[i]), xytext=(x[i], y[i]), ha='center', fontsize = 8, rotation = 15)
+        
+        
+        if (savePath):
+            file = os.path.join(savePath, (str(device)+'_infTime_vs_expRate.png'))
+            if os.path.exists(file):
+                os.remove(file)
+            plt.savefig(file)
+        plt.show() 
+
+
