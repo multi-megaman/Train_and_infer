@@ -17,9 +17,11 @@ from .dataset import get_dataset
 
 from difflib import SequenceMatcher
 
+import timeit
 
 
-def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,deviceName,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt',resize=None, date= "12/12/2012 12:12:12.121212"):
+
+def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,deviceName,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt',resize=None, date= "12/12/2012 12:12:12.121212", printar=True):
     #parser = argparse.ArgumentParser(description='Spatial channel attention')
     #parser.add_argument('--config', default='./checkpoints/model_1/config.yaml', type=str, help='配置文件路径')
     #parser.add_argument('--image_path', default='data/DataBase/test/test_images', type=str, help='测试image路径')
@@ -152,8 +154,7 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,deviceNa
             
         for item in tqdm(labels):
             name, *label = item.split()
-            print("-----------------")
-            print("Imagem: " + str(name))
+
             label = ' '.join(label)
             #if name.endswith('.jpg'):
             #    name = name.split('.')[0]
@@ -171,9 +172,11 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,deviceNa
             image, image_mask = image.to(device), image_mask.to(device)
 
             #medir tempo
-            pred_start = process_time()
+            # pred_start = process_time()
+            pred_start = timeit.default_timer()
             prediction = model(image, image_mask)
-            pred_end = process_time()
+            # pred_end = process_time()
+            pred_end = timeit.default_timer()
             
             pred_time = pred_end-pred_start
             pred_times[name]=pred_time
@@ -189,11 +192,11 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,deviceNa
             # cv2.waitKey()
 
             if latex_string == label.strip():
-                print("ACERTOU!")
+                
                 exp_right += 1
                 inferences_awnser[name]=(latex_string + " ---> V")
             else:
-                print("ERROU!")
+                
                 inferences_awnser[name]=(latex_string + " ---> X")
                 bad_case[name] = {
                     'label': label,
@@ -205,11 +208,20 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,deviceNa
             latex_prediction_list = latex_string.split() 
             label_list = label.strip().split()
 
-            print("latex_prediction_list: " + str(latex_prediction_list))
-            print("label_list: " + str(label_list))
 
             word_right_ratio = SequenceMatcher(None,latex_string,label.strip(),autojunk=False).ratio()
-            print("word_right_ratio: " + str(word_right_ratio))
+
+            if (printar):
+                print("-----------------")
+                if latex_string == label.strip():
+                    print("ACERTOU!")
+                else:
+                    print("ERROU!")
+                print("Imagem: " + str(name))
+                print("latex_prediction_list: " + str(latex_prediction_list))
+                print("label_list: " + str(label_list))
+                print("word_right_ratio: " + str(word_right_ratio))
+                print("infer_time: " + str(pred_time))
 
             word_right[name]=word_right_ratio
             #-----------------------------------

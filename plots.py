@@ -155,7 +155,7 @@ def top_x_models(csv,bestQnt, savePath = None,show=True): #plot que pega os x me
                 for run in runs_dataframe.iterrows():
                     x.append(run[1]['expression_rate'])
                     y.append(run[1]['inference_time_mean_(seconds)'])
-                    labels.append(run[1]['model_name'])
+                    labels.append(str(run[1]['experiment']) +" "+ str(run[1]['model_name']))
 
         
         fig, ax = plt.subplots(figsize=(15, 10))
@@ -175,5 +175,3 @@ def top_x_models(csv,bestQnt, savePath = None,show=True): #plot que pega os x me
             plt.savefig(file)
         if show:
             plt.show() 
-
-

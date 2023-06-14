@@ -16,7 +16,9 @@ from .models.infer_model import Inference
 from .dataset import Words
 from .counting_utils import gen_counting_label
 
-def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt', date= "12/12/2012 12:12:12.121212"):
+import timeit
+
+def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,imagePath='data/Base_soma_subtracao/val/val_images',labelPath='data/Base_soma_subtracao/val/val_labels.txt', date= "12/12/2012 12:12:12.121212", printar = True):
     # parser = argparse.ArgumentParser(description='model testing')
     # parser.add_argument('--dataset', default='CROHME', type=str, help='数据集名称')
     # parser.add_argument('--image_path', default='datasets/CROHME/14_test_images.pkl', type=str, help='测试image路径')
@@ -94,9 +96,11 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,i
             input_labels = input_labels.unsqueeze(0).to(device)
 
             #medir tempo
-            pred_start = process_time()
+            # pred_start = process_time()
+            pred_start = timeit.default_timer()
             probs, _, mae, mse = model(img, input_labels, os.path.join(params['decoder']['net'], name))
-            pred_end = process_time()
+            # pred_end = process_time()
+            pred_end = timeit.default_timer()
             
             pred_time = pred_end-pred_start
             pred_times[name]=pred_time
@@ -122,14 +126,12 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,i
             if prediction == labels:
                 line_right += 1
                 inferences_awnser[name]=(prediction + " ---> V")
-                print("ACERTOU!!!")
-                print("Prediction: " + str(prediction))
-                print("labelRight: " + str(labels))
+                
+
             else:
                 inferences_awnser[name]=(prediction + " ---> X")
-                print("ERROU!")
-                print("Prediction: " + str(prediction))
-                print("labelRight: " + str(labels))
+
+
                 bad_case[name] = {
                     'label': labels,
                     'predi': prediction
@@ -143,7 +145,16 @@ def Make_inference(checkpointFolder,wordsPath,configPath,checkpointPath,device,i
             #Word_Right:
             word_right_ratio = SequenceMatcher(None,prediction,labels,autojunk=False).ratio()
             word_right[name]=word_right_ratio   
-            print("word_right_ratio: " + str(word_right_ratio))
+
+            if (printar):
+                if prediction == labels:
+                    print("ACERTOU!!!")
+                else:
+                    print("ERROU!")
+                print("Prediction: " + str(prediction))
+                print("labelRight: " + str(labels))
+                print("word_right_ratio: " + str(word_right_ratio))
+                print("infer_time: " + str(pred_time))
 
             distance = compute_edit_distance(prediction, labels)
             if distance <= 1:

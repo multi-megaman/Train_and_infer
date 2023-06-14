@@ -9,6 +9,8 @@ from difflib import SequenceMatcher
 import torch
 from comer.datamodule import vocab
 
+import timeit
+
 
 def Make_inference(imagePath,labelPath):
     ckpt = '../lightning_logs/version_0/checkpoints/epoch=259-step=97759.ckpt' #carregar o modelo
@@ -43,12 +45,14 @@ def Make_inference(imagePath,labelPath):
         mask = torch.zeros_like(img, dtype=torch.bool)
 
         #medir tempo
-        pred_start = process_time()
+        # pred_start = process_time()
+        pred_start = timeit.default_timer()
 
         # hyp = model.beam_search(img)
         hyp = model.approximate_joint_search(img.unsqueeze(0), mask)[0]
 
-        pred_end = process_time()
+        # pred_end = process_time()
+        pred_end = timeit.default_timer()
         pred_time = pred_end-pred_start
         pred_times.append(pred_time)
          #medir tempo
