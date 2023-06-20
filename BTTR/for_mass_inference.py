@@ -70,6 +70,8 @@ def Make_inference(imagePath,labelPath,ckptPath, deviceName ="cpu", resize=None,
         pred_times.append(pred_time)
          #medir tempo
         
+        word_right_ratio = SequenceMatcher(None,hyp,label,autojunk=False).ratio()
+        word_right.append(word_right_ratio)
         if (printar):
             print("-----------------")
             print("imagem: "+ str(name))
@@ -78,14 +80,13 @@ def Make_inference(imagePath,labelPath,ckptPath, deviceName ="cpu", resize=None,
             else:
                 print("Errou!")
             print("predi: "+hyp)
-            print("label:"+label)
+            print("label: "+label)
+            print("word_right_ratio:" + str(word_right_ratio))
             print("infer_time: " + str(pred_time))
 
         if hyp == label:
             exp_rights += 1
 
-        word_right_ratio = SequenceMatcher(None,hyp,label,autojunk=False).ratio()
-        word_right.append(word_right_ratio)
     
     pred_time_mean = np.array(pred_times).mean()
     word_right_mean= np.array(word_right).mean()

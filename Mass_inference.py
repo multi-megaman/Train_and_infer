@@ -1,6 +1,7 @@
 import SAN.for_mass_inference as SAN_inference
 import CAN.for_mass_inference as CAN_inference
 import BTTR.for_mass_inference as BTTR_inference
+import CoMER.for_mass_inference as COMER_inference
 
 import torch
 import os
@@ -23,10 +24,14 @@ CanWords          = "./data_HME100K_sum_sub_7k_150x150/CAN/word_can.txt"        
 CanImagesPkl      = "data_HME100K_sum_sub_7k_150x150/CAN/val_image.pkl"                                 #pkl de imagens do CAN (ele faz inferência com um pkl)
 CanLabelPath      = 'data_HME100K_sum_sub_7k_150x150/HME100K_sum_sub_7k/test/test_labels.txt'           #txt das labels de validação do CAN
 
-BttrImagesPath    = "./data_Base_soma_subtracao/Base_soma_subtracao/val/val_images"                     #Diretório de onde estão as imagens de validação do BTTR
-BttrLabelPath     = './data_Base_soma_subtracao/Base_soma_subtracao/val/val_labels.txt'                 #txt das labels de validação do CAN
+BttrImagesPath    = "./data_Base_soma_subtracao/Base_soma_subtracao/test/test_images"                     #Diretório de onde estão as imagens de validação do BTTR
+BttrLabelPath     = './data_Base_soma_subtracao/Base_soma_subtracao/test/test_labels.txt'                 #txt das labels de validação do BTTR
 
-printar           = False                                                                               #para printar informações mais detalhadas de cada inferência em cada imagem.
+ComerImagesPath    = "./data_Base_soma_subtracao/Base_soma_subtracao/test/test_images"                     #Diretório de onde estão as imagens de validação do CoMER
+ComerLabelPath     = './data_Base_soma_subtracao/Base_soma_subtracao/test/test_labels.txt'                 #txt das labels de validação do CoMER
+
+
+printar           = True                                                                               #para printar informações mais detalhadas de cada inferência em cada imagem.
 ResizeImg         = (150,150)                                                                           #(altura, largura) de redimensionamento das imagens. O valor padrão é (150,150). OBS: marcar como None para não redimensionar
 words             = SanWords
 labelsPath        = SanLabelPath
@@ -97,6 +102,22 @@ for x in range(len(checkpointsFolder)):
     #BTTR
     elif experiment_name == "BTTR":
         inferenceScript = BTTR_inference
+        labelsPath = BttrLabelPath
+        ImagesPath = BttrImagesPath
+
+        for device in devices:
+            exp_rate, pred_time_mean,word_right, pred_time_std, word_right_std, device, experiment = inferenceScript.Make_inference(
+                                                    imagePath=ImagesPath,
+                                                    labelPath=labelsPath,
+                                                    ckptPath=checkpointsFile[x],
+                                                    deviceName=device,
+                                                    resize=ResizeImg,
+                                                    printar=printar)
+            infosForCsv.append({'experiment':experiment,'model_name':checkpointsName[x],'inference_time_mean_(seconds)':pred_time_mean,'inference_time_standard_deviation':pred_time_std,'expression_rate':exp_rate,'word_right_mean':word_right,'word_right_standard_deviation':word_right_std,'device': device})
+            
+    #CoMER
+    elif experiment_name == "COMER":
+        inferenceScript = COMER_inference
         labelsPath = BttrLabelPath
         ImagesPath = BttrImagesPath
 

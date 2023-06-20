@@ -5,14 +5,14 @@ import torch.nn as nn
 from einops import rearrange
 from torch import FloatTensor, LongTensor
 
-from comer.datamodule import vocab, vocab_size
-from comer.model.pos_enc import WordPosEnc
-from comer.model.transformer.arm import AttentionRefinementModule
-from comer.model.transformer.transformer_decoder import (
+from ..datamodule import vocab, vocab_size
+from ..model.pos_enc import WordPosEnc
+from ..model.transformer.arm import AttentionRefinementModule
+from ..model.transformer.transformer_decoder import (
     TransformerDecoder,
     TransformerDecoderLayer,
 )
-from comer.utils.generation_utils import DecodeModel
+from ..utils.generation_utils import DecodeModel
 
 
 def _build_transformer_decoder(
